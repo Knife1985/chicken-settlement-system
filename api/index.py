@@ -399,3 +399,7 @@ def generate_report():
 # Vercel 需要這個作為入口點
 def handler(request):
     return app(request.environ, lambda *args: None)
+
+# 確保應用程式可以正常運行
+if __name__ == '__main__':
+    app.run(debug=True)
