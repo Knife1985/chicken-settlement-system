@@ -2,7 +2,6 @@ from flask import Flask, render_template_string, jsonify, request
 import os
 import json
 from datetime import datetime
-import requests
 
 app = Flask(__name__)
 
