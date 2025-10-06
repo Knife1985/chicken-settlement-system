@@ -3,7 +3,6 @@ import os
 import json
 from datetime import datetime
 import requests
-import pandas as pd
 
 app = Flask(__name__)
 
