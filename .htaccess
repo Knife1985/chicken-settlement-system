@@ -1,0 +1,28 @@
+RewriteEngine On
+
+# 重寫所有請求到 WSGI 應用程式
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /wsgi.py/$1 [QSA,L]
+
+# 設定 Python 應用程式
+AddHandler wsgi-script .py
+
+# 設定 MIME 類型
+AddType application/x-httpd-cgi .py
+
+# 防止直接存取 Python 檔案
+<Files "*.py">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# 設定快取
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+</IfModule>

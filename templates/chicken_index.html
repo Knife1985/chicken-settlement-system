@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍗 炸雞對帳系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #ff6b6b;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid #ff6b6b;
+        }
+        
+        .stat-card h3 {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .settlement-card {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .settlement-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .settlement-card .amount {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .price-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .price-item label {
+            min-width: 60px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .price-item input {
+            width: 100px;
+            margin-right: 10px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .text-summary-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .text-summary-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .text-summary {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            margin: 0;
+            color: #333;
+        }
+        
+        .price-item input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍗 炸雞對帳系統</h1>
+            <p>自動化炸雞品項銷售分析與對帳報告生成</p>
+        </div>
+        
+        <div class="content">
+            <!-- 控制面板 -->
+            <div class="section">
+                <h2>📊 控制面板</h2>
+                <div class="form-group">
+                    <label for="start-date">開始日期：</label>
+                    <input type="date" id="start-date">
+                </div>
+                <div class="form-group">
+                    <label for="end-date">結束日期：</label>
+                    <input type="date" id="end-date">
+                </div>
+                <button class="btn" onclick="loadRealData()">🍗 載入真實資料</button>
+                <button class="btn btn-secondary" onclick="generateReport()">📄 生成 Excel 報告</button>
+                <button class="btn btn-success" onclick="downloadReport()">💾 下載 Excel 檔案</button>
+            </div>
+            
+            <!-- 價格設定面板 -->
+            <div class="section">
+                <h2>💰 價格設定</h2>
+                <div id="price-settings">
+                    <div class="price-item">
+                        <label>雞排：</label>
+                        <input type="number" id="chicken-cost" placeholder="成本" min="0" step="0.01">
+                        <input type="number" id="chicken-price" placeholder="售價" min="0" step="0.01">
+                        <button class="btn btn-small" onclick="updatePrice('雞排')">更新</button>
+                    </div>
+                    <div class="price-item">
+                        <label>地瓜：</label>
+                        <input type="number" id="sweet-potato-cost" placeholder="成本" min="0" step="0.01">
+                        <input type="number" id="sweet-potato-price" placeholder="售價" min="0" step="0.01">
+                        <button class="btn btn-small" onclick="updatePrice('地瓜')">更新</button>
+                    </div>
+                    <div class="price-item">
+                        <label>棒腿：</label>
+                        <input type="number" id="drumstick-cost" placeholder="成本" min="0" step="0.01">
+                        <input type="number" id="drumstick-price" placeholder="售價" min="0" step="0.01">
+                        <button class="btn btn-small" onclick="updatePrice('棒腿')">更新</button>
+                    </div>
+                    <div class="price-item">
+                        <label>雞翅：</label>
+                        <input type="number" id="wings-cost" placeholder="成本" min="0" step="0.01">
+                        <input type="number" id="wings-price" placeholder="售價" min="0" step="0.01">
+                        <button class="btn btn-small" onclick="updatePrice('雞翅')">更新</button>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="loadCurrentPrices()">🔄 載入目前價格</button>
+            </div>
+            
+            <!-- 載入狀態 -->
+            <div id="loading" class="loading hidden">
+                <p>🔄 正在處理炸雞資料，請稍候...</p>
+            </div>
+            
+            <!-- 錯誤訊息 -->
+            <div id="error" class="error hidden"></div>
+            
+            <!-- 成功訊息 -->
+            <div id="success" class="success hidden"></div>
+            
+            <!-- 炸雞老闆對帳摘要 -->
+            <div id="settlement-section" class="section hidden">
+                <h2>🍗 炸雞老闆對帳摘要</h2>
+                <div id="settlement-card" class="settlement-card">
+                    <h3>應付金額</h3>
+                    <div id="settlement-amount" class="amount">$0</div>
+                    <p>成本比例: <span id="cost-ratio">60%</span> | 利潤: $<span id="profit">0</span></p>
+                </div>
+                
+                <!-- 文字對帳摘要 -->
+                <div class="text-summary-section">
+                    <h3>📝 與老闆對帳摘要</h3>
+                    <div class="text-summary-container">
+                        <pre id="text-summary" class="text-summary">載入資料後會顯示詳細的對帳摘要</pre>
+                    </div>
+                    <button class="btn btn-small" onclick="copyTextSummary()">📋 複製摘要</button>
+                </div>
+            </div>
+            
+            <!-- 統計摘要 -->
+            <div id="stats-section" class="section hidden">
+                <h2>📈 炸雞銷售統計摘要</h2>
+                <div id="stats-grid" class="stats-grid"></div>
+            </div>
+            
+            <!-- 品項摘要 -->
+            <div id="product-section" class="section hidden">
+                <h2>🍗 各品項銷售摘要</h2>
+                <div class="table-container">
+                    <table id="product-table">
+                        <thead>
+                            <tr>
+                                <th>品項</th>
+                                <th>總數量</th>
+                                <th>總金額</th>
+                                <th>平均單價</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 每日摘要 -->
+            <div id="daily-section" class="section hidden">
+                <h2>📅 每日炸雞銷售摘要</h2>
+                <div class="table-container">
+                    <table id="daily-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>總數量</th>
+                                <th>總金額</th>
+                                <th>總成本</th>
+                                <th>利潤</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 詳細明細 -->
+            <div id="detail-section" class="section hidden">
+                <h2>📋 詳細銷售明細</h2>
+                <div class="table-container">
+                    <table id="detail-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>品項</th>
+                                <th>數量</th>
+                                <th>單價</th>
+                                <th>成本</th>
+                                <th>小計</th>
+                                <th>成本小計</th>
+                                <th>利潤</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentReportData = null;
+        let currentExcelFile = null;
+        
+        // 載入真實資料
+        async function loadRealData() {
+            showLoading(true);
+            hideMessages();
+            
+            try {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                
+                let url = '/api/real_data';
+                if (startDate && endDate) {
+                    url += `?start_date=${startDate}&end_date=${endDate}`;
+                }
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentReportData = result.data;
+                    displayData(result.data);
+                    showMessage('success', `✅ 真實炸雞資料載入成功！(${startDate} 到 ${endDate})`);
+                } else {
+                    showMessage('error', '❌ 載入真實資料失敗：' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', '❌ 載入真實資料時發生錯誤：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        
+        // 生成報告
+        async function generateReport() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            if (!startDate || !endDate) {
+                showMessage('error', '❌ 請選擇開始和結束日期');
+                return;
+            }
+            
+            showLoading(true);
+            hideMessages();
+            
+            try {
+                const response = await fetch('/api/generate_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentReportData = result.report_data;
+                    currentExcelFile = result.excel_file;
+                    displayReportData(result.report_data);
+                    showMessage('success', `✅ 炸雞對帳報告生成成功！<br>📄 Excel 檔案：${result.excel_file}<br>💾 點擊「下載報告」按鈕下載檔案`);
+                } else {
+                    showMessage('error', '❌ 生成報告失敗：' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', '❌ 生成報告時發生錯誤：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 下載報告
+        function downloadReport() {
+            if (!currentExcelFile) {
+                showMessage('error', '❌ 請先生成報告');
+                return;
+            }
+            
+            // 從檔案路徑中提取檔案名稱
+            const filename = currentExcelFile.split('/').pop();
+            
+            // 建立下載連結
+            const downloadUrl = `/api/download_report/${filename}`;
+            
+            // 建立隱藏的 a 標籤來觸發下載
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('success', `💾 正在下載報告：${filename}`);
+        }
+        
+        // 顯示資料
+        function displayData(data) {
+            // 顯示對帳摘要
+            displaySettlementInfo(data.settlement_info);
+            
+            // 顯示統計摘要
+            displayStats(data.settlement_info);
+            
+            // 顯示品項摘要
+            displayProductSummary(data.product_summary);
+            
+            // 顯示每日摘要
+            displayDailySummary(data.daily_summary);
+            
+            // 顯示詳細明細
+            displayDetailSummary(data.raw_data);
+            
+            // 顯示文字摘要（如果有）
+            if (data.文字摘要) {
+                document.getElementById('text-summary').textContent = data.文字摘要;
+            }
+            
+            // 顯示所有區塊
+            showSections();
+        }
+        
+        // 顯示報告資料
+        function displayReportData(data) {
+            const stats = {
+                總銷售金額: data.總銷售金額,
+                總銷售數量: data.總銷售數量,
+                炸雞老闆應付金額: data.炸雞老闆應付金額,
+                成本比例: data.成本比例,
+                利潤: data.利潤
+            };
+            
+            displaySettlementInfo(stats);
+            displayStats(stats);
+            
+            // 顯示文字摘要
+            if (data.文字摘要) {
+                document.getElementById('text-summary').textContent = data.文字摘要;
+            }
+            
+            showSections();
+        }
+        
+        // 顯示對帳摘要
+        function displaySettlementInfo(settlementInfo) {
+            const amount = settlementInfo.炸雞老闆應付金額 || 0;
+            const costRatio = (settlementInfo.成本比例 || 0.6) * 100;
+            const profit = settlementInfo.利潤 || 0;
+            
+            document.getElementById('settlement-amount').textContent = `$${amount.toLocaleString()}`;
+            document.getElementById('cost-ratio').textContent = `${costRatio.toFixed(1)}%`;
+            document.getElementById('profit').textContent = profit.toLocaleString();
+        }
+        
+        // 顯示統計摘要
+        function displayStats(stats) {
+            const statsGrid = document.getElementById('stats-grid');
+            statsGrid.innerHTML = '';
+            
+            const statItems = [
+                { label: '總銷售金額', value: `$${stats.總銷售金額?.toLocaleString() || 0}`, color: '#ff6b6b' },
+                { label: '總銷售數量', value: `${stats.總銷售數量 || 0} 份`, color: '#00b894' },
+                { label: '平均單價', value: `$${stats.平均單價?.toFixed(2) || 0}`, color: '#74b9ff' },
+                { label: '品項種類', value: `${stats.品項種類 || 0} 種`, color: '#fdcb6e' }
+            ];
+            
+            statItems.forEach(item => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <h3>${item.label}</h3>
+                    <div class="value" style="color: ${item.color}">${item.value}</div>
+                `;
+                statsGrid.appendChild(statCard);
+            });
+        }
+        
+        // 顯示品項摘要
+        function displayProductSummary(productData) {
+            const tbody = document.querySelector('#product-table tbody');
+            tbody.innerHTML = '';
+            
+            productData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.品項}</td>
+                    <td>${row.總數量}</td>
+                    <td>$${parseFloat(row.總金額).toLocaleString()}</td>
+                    <td>$${parseFloat(row.平均單價).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 顯示每日摘要
+        function displayDailySummary(dailyData) {
+            const tbody = document.querySelector('#daily-table tbody');
+            tbody.innerHTML = '';
+            
+            dailyData.forEach(row => {
+                const tr = document.createElement('tr');
+                const totalAmount = parseFloat(row.總金額);
+                const totalCost = parseFloat(row.總成本 || 0);
+                const profit = totalAmount - totalCost;
+                tr.innerHTML = `
+                    <td>${row.日期}</td>
+                    <td>${row.總數量}</td>
+                    <td>$${totalAmount.toLocaleString()}</td>
+                    <td>$${totalCost.toLocaleString()}</td>
+                    <td>$${profit.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 顯示詳細明細
+        function displayDetailSummary(detailData) {
+            const tbody = document.querySelector('#detail-table tbody');
+            tbody.innerHTML = '';
+            
+            detailData.forEach(row => {
+                const tr = document.createElement('tr');
+                const amount = parseFloat(row.小計);
+                const cost = parseFloat(row.成本小計);
+                const profit = amount - cost;
+                tr.innerHTML = `
+                    <td>${row.日期}</td>
+                    <td>${row.品項}</td>
+                    <td>${row.數量}</td>
+                    <td>$${parseFloat(row.單價).toFixed(2)}</td>
+                    <td>$${parseFloat(row.成本).toFixed(2)}</td>
+                    <td>$${amount.toLocaleString()}</td>
+                    <td>$${cost.toLocaleString()}</td>
+                    <td>$${profit.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 顯示所有區塊
+        function showSections() {
+            document.getElementById('settlement-section').classList.remove('hidden');
+            document.getElementById('stats-section').classList.remove('hidden');
+            document.getElementById('product-section').classList.remove('hidden');
+            document.getElementById('daily-section').classList.remove('hidden');
+            document.getElementById('detail-section').classList.remove('hidden');
+        }
+        
+        // 顯示載入狀態
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+        }
+        
+        // 顯示訊息
+        function showMessage(type, message) {
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            if (type === 'error') {
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                successDiv.classList.add('hidden');
+            } else {
+                successDiv.textContent = message;
+                successDiv.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+            }
+        }
+        
+        // 隱藏訊息
+        function hideMessages() {
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+        }
+        
+        // 價格設定功能
+        async function loadCurrentPrices() {
+            try {
+                const response = await fetch('/api/current_prices');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const prices = result.prices;
+                    document.getElementById('chicken-cost').value = prices['雞排'].cost;
+                    document.getElementById('chicken-price').value = prices['雞排'].price;
+                    document.getElementById('sweet-potato-cost').value = prices['地瓜'].cost;
+                    document.getElementById('sweet-potato-price').value = prices['地瓜'].price;
+                    document.getElementById('drumstick-cost').value = prices['棒腿'].cost;
+                    document.getElementById('drumstick-price').value = prices['棒腿'].price;
+                    document.getElementById('wings-cost').value = prices['雞翅'].cost;
+                    document.getElementById('wings-price').value = prices['雞翅'].price;
+                    showMessage('success', '✅ 目前價格已載入');
+                } else {
+                    showMessage('error', '❌ 載入價格失敗：' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', '❌ 載入價格時發生錯誤：' + error.message);
+            }
+        }
+        
+        async function updatePrice(itemName) {
+            const costId = getCostId(itemName);
+            const priceId = getPriceId(itemName);
+            const cost = parseFloat(document.getElementById(costId).value);
+            const price = parseFloat(document.getElementById(priceId).value);
+            
+            if (isNaN(cost) || isNaN(price)) {
+                showMessage('error', '❌ 請輸入有效的數字');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/update_price', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        item: itemName,
+                        cost: cost,
+                        price: price
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', `✅ ${itemName} 價格已更新`);
+                } else {
+                    showMessage('error', '❌ 更新價格失敗：' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', '❌ 更新價格時發生錯誤：' + error.message);
+            }
+        }
+        
+        function getCostId(itemName) {
+            const mapping = {
+                '雞排': 'chicken-cost',
+                '地瓜': 'sweet-potato-cost',
+                '棒腿': 'drumstick-cost',
+                '雞翅': 'wings-cost'
+            };
+            return mapping[itemName];
+        }
+        
+        function getPriceId(itemName) {
+            const mapping = {
+                '雞排': 'chicken-price',
+                '地瓜': 'sweet-potato-price',
+                '棒腿': 'drumstick-price',
+                '雞翅': 'wings-price'
+            };
+            return mapping[itemName];
+        }
+        
+        // 設定預設日期（根據真實資料的日期範圍）
+        function setDefaultDates() {
+            // 真實資料的日期範圍是2025年8月，設定為8月的最後一週
+            document.getElementById('start-date').value = '2025-08-18';
+            document.getElementById('end-date').value = '2025-08-25';
+        }
+        
+        // 複製文字摘要
+        function copyTextSummary() {
+            const textSummary = document.getElementById('text-summary').textContent;
+            if (textSummary && textSummary !== '載入資料後會顯示詳細的對帳摘要') {
+                navigator.clipboard.writeText(textSummary).then(function() {
+                    showMessage('success', '📋 對帳摘要已複製到剪貼簿！');
+                }).catch(function(err) {
+                    // 如果 clipboard API 不可用，使用傳統方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textSummary;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showMessage('success', '📋 對帳摘要已複製到剪貼簿！');
+                });
+            } else {
+                showMessage('error', '❌ 請先載入資料');
+            }
+        }
+        
+        // 頁面載入時設定預設日期和載入價格
+        window.onload = function() {
+            setDefaultDates();
+            loadCurrentPrices();
+        };
+    </script>
+</body>
+</html>

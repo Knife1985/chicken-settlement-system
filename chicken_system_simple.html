@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍗 雞排結帳系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .info-card h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-card li {
+            padding: 5px 0;
+            border-bottom: 1px solid #b3d9ff;
+        }
+        
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .demo-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .demo-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .demo-data {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍗 雞排結帳系統</h1>
+            <p>自動化對帳管理系統 - A2 Hosting 部署版</p>
+        </div>
+        
+        <div class="content">
+            <div class="status">
+                <strong>✅ 系統狀態:</strong> 已成功部署到 A2 Hosting | 
+                <strong>🌐 網域:</strong> giving-wine.com | 
+                <strong>📅 時間:</strong> <span id="current-time"></span>
+            </div>
+            
+            <div class="demo-section">
+                <h3>🎯 系統功能展示</h3>
+                <p>以下是雞排結帳系統的主要功能：</p>
+                
+                <div class="demo-data">
+{
+  "系統功能": {
+    "資料載入": "從 Google Sheets 讀取炸雞銷售資料",
+    "對帳計算": "自動計算成本、利潤和應付金額",
+    "報告生成": "生成 Excel 格式的對帳報告",
+    "價格管理": "動態設定品項價格",
+    "日期篩選": "支援自訂日期範圍查詢"
+  },
+  "技術特色": {
+    "無需認證": "直接讀取 Google Sheets 公開資料",
+    "即時更新": "資料即時同步",
+    "響應式設計": "支援各種裝置",
+    "錯誤處理": "完善的錯誤處理機制"
+  },
+  "部署資訊": {
+    "平台": "A2 Hosting",
+    "網域": "giving-wine.com",
+    "後端": "Python Flask",
+    "資料來源": "Google Sheets",
+    "狀態": "已部署"
+  }
+}
+                </div>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>🎯 系統功能</h4>
+                    <ul>
+                        <li>📊 炸雞銷售資料統計</li>
+                        <li>💰 自動對帳計算</li>
+                        <li>📄 Excel 報告生成</li>
+                        <li>🏷️ 價格管理</li>
+                        <li>📅 日期範圍查詢</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h4>🔧 技術資訊</h4>
+                    <ul>
+                        <li><strong>後端:</strong> Python Flask</li>
+                        <li><strong>資料來源:</strong> Google Sheets</li>
+                        <li><strong>部署平台:</strong> A2 Hosting</li>
+                        <li><strong>網域:</strong> giving-wine.com</li>
+                        <li><strong>狀態:</strong> 已部署</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h4>📋 使用說明</h4>
+                    <ul>
+                        <li>1. 選擇日期範圍</li>
+                        <li>2. 載入炸雞銷售資料</li>
+                        <li>3. 查看統計結果</li>
+                        <li>4. 生成對帳報告</li>
+                        <li>5. 下載 Excel 檔案</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="javascript:void(0)" onclick="showDemo()" class="btn btn-success">🧪 查看示範資料</a>
+                <a href="javascript:void(0)" onclick="showFeatures()" class="btn">📋 功能說明</a>
+                <a href="javascript:void(0)" onclick="showTechInfo()" class="btn">🔧 技術資訊</a>
+            </div>
+            
+            <div id="demo-result" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; display: none;">
+                <h4>📋 示範結果</h4>
+                <pre id="demo-content"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 更新時間
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleString('zh-TW');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 顯示示範資料
+        function showDemo() {
+            const demoData = {
+                "示範對帳資料": {
+                    "期間": "2025-09-16 到 2025-09-30",
+                    "總銷售金額": "1,660 元",
+                    "總銷售數量": "74 份",
+                    "品項統計": {
+                        "雞排": "45 份",
+                        "雞翅": "12 份", 
+                        "棒腿": "8 份",
+                        "地瓜": "9 份"
+                    },
+                    "成本分析": {
+                        "總成本": "820 元",
+                        "成本比例": "49.4%",
+                        "利潤": "840 元"
+                    },
+                    "炸雞老闆應付金額": "820 元"
+                }
+            };
+            
+            showResult('示範對帳資料：\n' + JSON.stringify(demoData, null, 2));
+        }
+        
+        // 顯示功能說明
+        function showFeatures() {
+            const features = {
+                "系統功能詳情": {
+                    "資料管理": {
+                        "Google Sheets 整合": "直接讀取公開的 Google Sheets 資料",
+                        "即時同步": "資料即時更新，無需手動匯入",
+                        "日期篩選": "支援自訂日期範圍查詢"
+                    },
+                    "對帳計算": {
+                        "自動計算": "系統自動計算成本、利潤和應付金額",
+                        "多品項支援": "支援雞排、雞翅、棒腿、地瓜等多種品項",
+                        "成本分析": "詳細的成本比例和利潤分析"
+                    },
+                    "報告生成": {
+                        "Excel 格式": "生成專業的 Excel 對帳報告",
+                        "自動下載": "一鍵下載報告檔案",
+                        "詳細統計": "包含每日、每品項的詳細統計"
+                    }
+                }
+            };
+            
+            showResult('功能說明：\n' + JSON.stringify(features, null, 2));
+        }
+        
+        // 顯示技術資訊
+        function showTechInfo() {
+            const techInfo = {
+                "技術架構": {
+                    "前端": "HTML5 + CSS3 + JavaScript",
+                    "後端": "Python Flask",
+                    "資料庫": "Google Sheets (無需本地資料庫)",
+                    "部署": "A2 Hosting",
+                    "API": "RESTful API 設計"
+                },
+                "系統需求": {
+                    "Python 版本": "3.8+",
+                    "必要套件": "Flask, pandas, openpyxl, requests",
+                    "瀏覽器支援": "Chrome, Firefox, Safari, Edge",
+                    "裝置支援": "桌面、平板、手機"
+                },
+                "安全特性": {
+                    "資料安全": "所有資料儲存在 Google Sheets",
+                    "無需認證": "直接讀取公開資料，無需 API 金鑰",
+                    "錯誤處理": "完善的錯誤處理和日誌記錄"
+                }
+            };
+            
+            showResult('技術資訊：\n' + JSON.stringify(techInfo, null, 2));
+        }
+        
+        // 顯示結果
+        function showResult(content) {
+            document.getElementById('demo-result').style.display = 'block';
+            document.getElementById('demo-content').textContent = content;
+        }
+    </script>
+</body>
+</html>

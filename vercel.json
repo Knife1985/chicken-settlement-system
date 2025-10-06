@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "simple_chicken_web.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "simple_chicken_web.py"
+      "dest": "/api/index.py"
     }
   ]
 }

@@ -1,0 +1,36 @@
+# 雞排結帳系統 - 部署檔案清單
+
+## 核心應用程式檔案
+simple_chicken_web.py
+wsgi.py
+start_production.py
+
+## 設定檔案
+chicken_config.py
+chicken_prices.json
+requirements.txt
+.htaccess
+
+## 核心功能模組
+chicken_settlement_calculator.py
+chicken_report_generator.py
+direct_sheets_reader.py
+persistent_price_config.py
+manual_price_config.py
+
+## 網頁模板
+templates/chicken_index.html
+
+## 目錄結構
+chicken_reports/ (需要建立並設定權限)
+
+## 可選檔案（用於備份）
+chicken_main.py
+chicken_web_interface.py
+real_chicken_sheets_client.py
+chicken_sheets_client.py
+config.py
+start_chicken_web.py
+test_chicken_system.py
+使用說明.md
+部署說明.md
