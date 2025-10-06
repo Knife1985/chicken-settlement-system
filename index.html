@@ -152,13 +152,13 @@
     <div class="container">
         <div class="header">
             <h1>🍗 雞排結帳系統</h1>
-            <p>WordPress 已成功移除 - 純淨的雞排對帳系統</p>
+            <p>Vercel 靜態部署成功 - 雲端雞排對帳系統</p>
         </div>
         
         <div class="content">
             <div class="status">
-                <strong>✅ 系統狀態:</strong> WordPress 已移除，系統運行正常 |
-                <strong>🌐 網域:</strong> giving-wine.com |
+                <strong>✅ 系統狀態:</strong> Vercel 靜態部署成功 |
+                <strong>🌐 網域:</strong> <span id="current-domain"></span> |
                 <strong>⏱️ 時間:</strong> <span id="current-time"></span>
             </div>
             
@@ -203,11 +203,11 @@
                 <div class="info-card">
                     <h4>🛠️ 技術架構</h4>
                     <ul>
-                        <li><strong>後端:</strong> Python Flask</li>
+                        <li><strong>前端:</strong> 純 HTML/CSS/JavaScript</li>
+                        <li><strong>部署:</strong> Vercel 靜態部署</li>
                         <li><strong>數據源:</strong> Google Sheets</li>
-                        <li><strong>主機:</strong> A2 Hosting</li>
-                        <li><strong>網域:</strong> giving-wine.com</li>
-                        <li><strong>狀態:</strong> WordPress 已移除</li>
+                        <li><strong>網域:</strong> Vercel 免費網域</li>
+                        <li><strong>狀態:</strong> 靜態部署成功</li>
                     </ul>
                 </div>
                 
@@ -224,17 +224,17 @@
             </div>
             
             <div class="action-buttons">
-                <a href="http://localhost:8082" target="_blank" class="btn btn-success">🚀 開啟完整系統</a>
-                <a href="javascript:void(0)" onclick="showFeatures()" class="btn btn-primary">🔍 查看功能詳情</a>
+                <button class="btn btn-success" onclick="showFeatures()">🔍 查看功能詳情</button>
             </div>
         </div>
     </div>
     
     <script>
-    // 更新時間
+    // 更新時間和網域
     function updateTime() {
         const now = new Date();
         document.getElementById('current-time').textContent = now.toLocaleString('zh-TW');
+        document.getElementById('current-domain').textContent = window.location.hostname;
     }
     updateTime();
     setInterval(updateTime, 1000);
@@ -244,7 +244,7 @@
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
         
-        showResult('正在載入炸雞數據...\n\n日期範圍: ' + startDate + ' 到 ' + endDate + '\n\n載入中，請稍候...');
+        showResult('正在載入炸雞數據...\\n\\n日期範圍: ' + startDate + ' 到 ' + endDate + '\\n\\n載入中，請稍候...');
         
         // 模擬 API 調用
         setTimeout(() => {
@@ -268,13 +268,13 @@
                 }
             };
             
-            showResult('炸雞數據載入完成！\n\n' + JSON.stringify(mockData, null, 2));
+            showResult('炸雞數據載入完成！\\n\\n' + JSON.stringify(mockData, null, 2));
         }, 2000);
     }
     
     // 生成報告
     function generateReport() {
-        showResult('正在生成對帳報告...\n\n報告內容:\n- 日期範圍分析\n- 炸雞銷售統計\n- 對帳結果計算\n- 利潤分析報告\n\n報告生成完成！');
+        showResult('正在生成對帳報告...\\n\\n報告內容:\\n- 日期範圍分析\\n- 炸雞銷售統計\\n- 對帳結果計算\\n- 利潤分析報告\\n\\n報告生成完成！');
     }
     
     // 顯示功能展示
@@ -299,7 +299,7 @@
             }
         };
         
-        showResult('功能展示:\n\n' + JSON.stringify(demoData, null, 2));
+        showResult('功能展示:\\n\\n' + JSON.stringify(demoData, null, 2));
     }
     
     // 顯示功能詳情
@@ -324,7 +324,7 @@
             }
         };
         
-        showResult('功能詳情:\n\n' + JSON.stringify(features, null, 2));
+        showResult('功能詳情:\\n\\n' + JSON.stringify(features, null, 2));
     }
     
     // 顯示結果
