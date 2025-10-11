@@ -234,9 +234,13 @@
                 </div>
             </div>
             
-            <div class="result-section" id="result-section">
-                <h4>📊 處理結果</h4>
-                <div class="result-data" id="result-content"></div>
+            <!-- 文字對帳摘要 -->
+            <div id="result-section" class="result-section">
+                <h3>📝 與老闆對帳摘要</h3>
+                <div style="background: white; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin: 10px 0; max-height: 400px; overflow-y: auto;">
+                    <pre id="result-content" style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.4; white-space: pre-wrap; margin: 0; color: #333;">載入資料後會顯示詳細的對帳摘要</pre>
+                </div>
+                <button class="btn" onclick="copyTextSummary()" style="background: linear-gradient(135deg, #00b894, #00a085);">📋 複製摘要</button>
             </div>
             
             <div class="info-grid">
@@ -301,89 +305,65 @@
         setTimeout(() => {
             const mockData = {
                 dateRange: startDate + " 到 " + endDate,
-                totalSales: "1,660",
-                totalQuantity: "74",
+                totalSales: 1660,
+                totalQuantity: 74,
                 categories: [
-                    { name: "雞排", quantity: "45", price: "45", total: "2,025" },
-                    { name: "雞翅", quantity: "12", price: "12", total: "144" },
-                    { name: "雞腿", quantity: "8", price: "8", total: "64" },
-                    { name: "雞塊", quantity: "9", price: "9", total: "81" }
+                    { name: "雞排", quantity: 45, price: 45, total: 2025 },
+                    { name: "雞翅", quantity: 12, price: 12, total: 144 },
+                    { name: "雞腿", quantity: 8, price: 8, total: 64 },
+                    { name: "雞塊", quantity: 9, price: 9, total: 81 }
                 ],
-                totalRevenue: "820",
-                revenueRatio: "49.4%",
-                profit: "840"
+                totalRevenue: 820,
+                revenueRatio: 0.494,
+                profit: 840
             };
             
-            showReportTable(mockData);
+            showTextSummary(mockData);
         }, 2000);
     }
     
-    // 顯示報表格式的結果
-    function showReportTable(data) {
-        let html = `
-            <div class="summary-box">
-                <h4>📊 對帳摘要</h4>
-                <div class="summary-item">
-                    <span class="summary-label">📅 日期範圍：</span>
-                    <span class="summary-value">${data.dateRange}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">💰 總銷售額：</span>
-                    <span class="summary-value">${data.totalSales} 元</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">📦 總銷售數量：</span>
-                    <span class="summary-value">${data.totalQuantity} 份</span>
-                </div>
-            </div>
-            
-            <h4>🍗 炸雞銷售明細</h4>
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>產品名稱</th>
-                        <th>數量</th>
-                        <th>單價 (元)</th>
-                        <th>小計 (元)</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+    // 生成文字對帳摘要
+    function showTextSummary(data) {
+        let summary = `
+╔══════════════════════════════════════════════╗
+║          🍗 炸雞對帳摘要報告 🍗              ║
+╚══════════════════════════════════════════════╝
+
+📅 對帳期間: ${data.dateRange}
+
+══════════════════════════════════════════════
+📊 銷售統計
+══════════════════════════════════════════════
+
+`;
         
+        // 各品項明細
+        summary += '🍗 各品項銷售明細:\n';
+        summary += '─'.repeat(46) + '\n';
         data.categories.forEach(item => {
-            html += `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.quantity} 份</td>
-                    <td>${item.price}</td>
-                    <td>${item.total}</td>
-                </tr>
-            `;
+            summary += `  ${item.name.padEnd(8, ' ')} x ${String(item.quantity).padStart(3)} 份 @ $${String(item.price).padStart(4)} = $${String(item.total).padStart(6)}\n`;
         });
         
-        html += `
-                </tbody>
-            </table>
-            
-            <div class="summary-box">
-                <h4>💵 對帳結果</h4>
-                <div class="summary-item">
-                    <span class="summary-label">📈 總收入：</span>
-                    <span class="summary-value">${data.totalRevenue} 元</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">📊 收入比例：</span>
-                    <span class="summary-value">${data.revenueRatio}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">💎 利潤：</span>
-                    <span class="summary-value">${data.profit} 元</span>
-                </div>
-            </div>
-        `;
+        summary += '─'.repeat(46) + '\n';
+        summary += `  總計: ${data.totalQuantity} 份  總金額: $${data.totalSales}\n`;
+        summary += '\n';
+        
+        // 對帳結果
+        summary += '══════════════════════════════════════════════\n';
+        summary += '💰 對帳結果\n';
+        summary += '══════════════════════════════════════════════\n';
+        summary += '\n';
+        summary += `📈 總銷售額:        $${data.totalSales.toLocaleString()}\n`;
+        summary += `💵 炸雞老闆應付:    $${data.totalRevenue.toLocaleString()}\n`;
+        summary += `📊 成本比例:        ${(data.revenueRatio * 100).toFixed(1)}%\n`;
+        summary += `💎 利潤:            $${data.profit.toLocaleString()}\n`;
+        summary += '\n';
+        summary += '══════════════════════════════════════════════\n';
+        summary += `📋 請炸雞老闆支付: $${data.totalRevenue.toLocaleString()}\n`;
+        summary += '══════════════════════════════════════════════\n';
         
         document.getElementById('result-section').style.display = 'block';
-        document.getElementById('result-content').innerHTML = html;
+        document.getElementById('result-content').textContent = summary;
     }
     
     // 生成報告
@@ -398,20 +378,41 @@
     function showDemo() {
         const mockData = {
             dateRange: "2025-09-16 到 2025-09-30",
-            totalSales: "1,660",
-            totalQuantity: "74",
+            totalSales: 1660,
+            totalQuantity: 74,
             categories: [
-                { name: "雞排", quantity: "45", price: "45", total: "2,025" },
-                { name: "雞翅", quantity: "12", price: "12", total: "144" },
-                { name: "雞腿", quantity: "8", price: "8", total: "64" },
-                { name: "雞塊", quantity: "9", price: "9", total: "81" }
+                { name: "雞排", quantity: 45, price: 45, total: 2025 },
+                { name: "雞翅", quantity: 12, price: 12, total: 144 },
+                { name: "雞腿", quantity: 8, price: 8, total: 64 },
+                { name: "雞塊", quantity: 9, price: 9, total: 81 }
             ],
-            totalRevenue: "820",
-            revenueRatio: "49.4%",
-            profit: "840"
+            totalRevenue: 820,
+            revenueRatio: 0.494,
+            profit: 840
         };
         
-        showReportTable(mockData);
+        showTextSummary(mockData);
+    }
+    
+    // 複製文字摘要
+    function copyTextSummary() {
+        const textSummary = document.getElementById('result-content').textContent;
+        if (textSummary && textSummary !== '載入資料後會顯示詳細的對帳摘要') {
+            navigator.clipboard.writeText(textSummary).then(function() {
+                alert('📋 對帳摘要已複製到剪貼簿！');
+            }).catch(function(err) {
+                // 如果 clipboard API 不可用，使用傳統方法
+                const textArea = document.createElement('textarea');
+                textArea.value = textSummary;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('📋 對帳摘要已複製到剪貼簿！');
+            });
+        } else {
+            alert('❌ 請先載入資料');
+        }
     }
     
     // 顯示功能詳情
