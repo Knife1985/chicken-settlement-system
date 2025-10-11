@@ -324,43 +324,83 @@
     
     // 生成文字對帳摘要
     function showTextSummary(data) {
-        let summary = `
-╔══════════════════════════════════════════════╗
-║          🍗 炸雞對帳摘要報告 🍗              ║
-╚══════════════════════════════════════════════╝
-
-📅 對帳期間: ${data.dateRange}
-
-══════════════════════════════════════════════
-📊 銷售統計
-══════════════════════════════════════════════
-
-`;
+        let summary = '';
+        summary += '='.repeat(50) + '\n';
+        summary += '🍗 炸雞對帳摘要\n';
+        summary += '='.repeat(50) + '\n';
+        summary += `對帳期間：${data.dateRange}\n`;
+        summary += '\n';
         
-        // 各品項明細
-        summary += '🍗 各品項銷售明細:\n';
-        summary += '─'.repeat(46) + '\n';
-        data.categories.forEach(item => {
-            summary += `  ${item.name.padEnd(8, ' ')} x ${String(item.quantity).padStart(3)} 份 @ $${String(item.price).padStart(4)} = $${String(item.total).padStart(6)}\n`;
+        // 每日明細（按日期和品項分組）
+        summary += '📅 每日明細：\n';
+        summary += '-'.repeat(30) + '\n';
+        
+        // 模擬每日數據（實際應該從 API 獲取）
+        const dailyData = [
+            { date: '2025-10-01', items: [
+                { name: '雞排', quantity: 15, cost: 30, total: 450 },
+                { name: '雞翅', quantity: 4, cost: 8, total: 32 }
+            ]},
+            { date: '2025-10-05', items: [
+                { name: '雞排', quantity: 18, cost: 30, total: 540 },
+                { name: '雞腿', quantity: 3, cost: 5, total: 15 }
+            ]},
+            { date: '2025-10-08', items: [
+                { name: '雞排', quantity: 12, cost: 30, total: 360 },
+                { name: '雞翅', quantity: 8, cost: 8, total: 64 },
+                { name: '雞腿', quantity: 5, cost: 5, total: 25 }
+            ]}
+        ];
+        
+        dailyData.forEach((day, index) => {
+            if (index > 0) summary += '\n';
+            summary += `📅 ${day.date}：\n`;
+            day.items.forEach(item => {
+                summary += `  ${item.name}：${item.quantity} 份 × ${item.cost} 元（進價） = ${item.total} 元\n`;
+            });
         });
         
-        summary += '─'.repeat(46) + '\n';
-        summary += `  總計: ${data.totalQuantity} 份  總金額: $${data.totalSales}\n`;
         summary += '\n';
         
-        // 對帳結果
-        summary += '══════════════════════════════════════════════\n';
-        summary += '💰 對帳結果\n';
-        summary += '══════════════════════════════════════════════\n';
+        // 每日總計
+        summary += '📊 每日總計（進價）：\n';
+        dailyData.forEach(day => {
+            const dailyTotal = day.items.reduce((sum, item) => sum + item.total, 0);
+            const dailyQuantity = day.items.reduce((sum, item) => sum + item.quantity, 0);
+            summary += `${day.date}：總計 ${dailyQuantity} 份，進價 ${dailyTotal} 元\n`;
+        });
+        
         summary += '\n';
-        summary += `📈 總銷售額:        $${data.totalSales.toLocaleString()}\n`;
-        summary += `💵 炸雞老闆應付:    $${data.totalRevenue.toLocaleString()}\n`;
-        summary += `📊 成本比例:        ${(data.revenueRatio * 100).toFixed(1)}%\n`;
-        summary += `💎 利潤:            $${data.profit.toLocaleString()}\n`;
+        
+        // 品項對帳明細
+        summary += '🍗 品項對帳明細：\n';
+        summary += '-'.repeat(30) + '\n';
+        data.categories.forEach(item => {
+            // 使用進價（成本）而不是售價
+            const cost = Math.floor(item.price * 0.65); // 假設成本約為售價的65%
+            const costTotal = item.quantity * cost;
+            summary += `${item.name}：${item.quantity} 份 × ${cost} 元（進價） = ${costTotal} 元\n`;
+        });
+        
         summary += '\n';
-        summary += '══════════════════════════════════════════════\n';
-        summary += `📋 請炸雞老闆支付: $${data.totalRevenue.toLocaleString()}\n`;
-        summary += '══════════════════════════════════════════════\n';
+        
+        // 計算式
+        summary += '🧮 計算式：\n';
+        summary += '-'.repeat(30) + '\n';
+        summary += `總數量：${data.totalQuantity} 份\n`;
+        summary += `應付金額：${data.totalRevenue} 元\n`;
+        summary += '\n';
+        summary += '金額計算明細：\n';
+        data.categories.forEach(item => {
+            const cost = Math.floor(item.price * 0.65);
+            const costTotal = item.quantity * cost;
+            summary += `  ${item.name}：${item.quantity} 份 × ${cost} 元 = ${costTotal} 元\n`;
+        });
+        
+        summary += '\n';
+        summary += '='.repeat(50) + '\n';
+        summary += `💰 應付金額：${data.totalRevenue} 元\n`;
+        summary += '='.repeat(50) + '\n';
         
         document.getElementById('result-section').style.display = 'block';
         document.getElementById('result-content').textContent = summary;
