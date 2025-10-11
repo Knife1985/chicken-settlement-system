@@ -119,6 +119,57 @@
             overflow-x: auto;
             white-space: pre-wrap;
         }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+        }
+        .report-table th,
+        .report-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        .report-table th {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            font-weight: bold;
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .report-table tr:hover {
+            background-color: #e9ecef;
+        }
+        .summary-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .summary-box h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        .summary-label {
+            font-weight: bold;
+            color: #856404;
+        }
+        .summary-value {
+            color: #000;
+            font-weight: bold;
+        }
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -244,62 +295,123 @@
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
         
-        showResult('正在載入炸雞數據...\\n\\n日期範圍: ' + startDate + ' 到 ' + endDate + '\\n\\n載入中，請稍候...');
+        showResultText('正在載入炸雞數據...\\n\\n日期範圍: ' + startDate + ' 到 ' + endDate + '\\n\\n載入中，請稍候...');
         
         // 模擬 API 調用
         setTimeout(() => {
             const mockData = {
-                "載入數據": {
-                    "日期範圍": startDate + " 到 " + endDate,
-                    "炸雞總銷售": "1,660 元",
-                    "炸雞總數量": "74 份",
-                    "炸雞分類": {
-                        "雞排": "45 份",
-                        "雞翅": "12 份", 
-                        "雞腿": "8 份",
-                        "雞塊": "9 份"
-                    },
-                    "對帳結果": {
-                        "總收入": "820 元",
-                        "收入比例": "49.4%",
-                        "利潤": "840 元"
-                    },
-                    "炸雞利潤分析": "820 元"
-                }
+                dateRange: startDate + " 到 " + endDate,
+                totalSales: "1,660",
+                totalQuantity: "74",
+                categories: [
+                    { name: "雞排", quantity: "45", price: "45", total: "2,025" },
+                    { name: "雞翅", quantity: "12", price: "12", total: "144" },
+                    { name: "雞腿", quantity: "8", price: "8", total: "64" },
+                    { name: "雞塊", quantity: "9", price: "9", total: "81" }
+                ],
+                totalRevenue: "820",
+                revenueRatio: "49.4%",
+                profit: "840"
             };
             
-            showResult('炸雞數據載入完成！\\n\\n' + JSON.stringify(mockData, null, 2));
+            showReportTable(mockData);
         }, 2000);
+    }
+    
+    // 顯示報表格式的結果
+    function showReportTable(data) {
+        let html = `
+            <div class="summary-box">
+                <h4>📊 對帳摘要</h4>
+                <div class="summary-item">
+                    <span class="summary-label">📅 日期範圍：</span>
+                    <span class="summary-value">${data.dateRange}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">💰 總銷售額：</span>
+                    <span class="summary-value">${data.totalSales} 元</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">📦 總銷售數量：</span>
+                    <span class="summary-value">${data.totalQuantity} 份</span>
+                </div>
+            </div>
+            
+            <h4>🍗 炸雞銷售明細</h4>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>產品名稱</th>
+                        <th>數量</th>
+                        <th>單價 (元)</th>
+                        <th>小計 (元)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        data.categories.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity} 份</td>
+                    <td>${item.price}</td>
+                    <td>${item.total}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                </tbody>
+            </table>
+            
+            <div class="summary-box">
+                <h4>💵 對帳結果</h4>
+                <div class="summary-item">
+                    <span class="summary-label">📈 總收入：</span>
+                    <span class="summary-value">${data.totalRevenue} 元</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">📊 收入比例：</span>
+                    <span class="summary-value">${data.revenueRatio}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">💎 利潤：</span>
+                    <span class="summary-value">${data.profit} 元</span>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('result-section').style.display = 'block';
+        document.getElementById('result-content').innerHTML = html;
     }
     
     // 生成報告
     function generateReport() {
-        showResult('正在生成對帳報告...\\n\\n報告內容:\\n- 日期範圍分析\\n- 炸雞銷售統計\\n- 對帳結果計算\\n- 利潤分析報告\\n\\n報告生成完成！');
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        showResultText('正在生成對帳報告...\\n\\n報告內容:\\n- 日期範圍分析\\n- 炸雞銷售統計\\n- 對帳結果計算\\n- 利潤分析報告\\n\\n報告生成完成！');
     }
     
     // 顯示功能展示
     function showDemo() {
-        const demoData = {
-            "功能展示": {
-                "日期範圍": "2025-09-16 到 2025-09-30",
-                "炸雞總銷售": "1,660 元",
-                "炸雞總數量": "74 份",
-                "炸雞分類": {
-                    "雞排": "45 份",
-                    "雞翅": "12 份", 
-                    "雞腿": "8 份",
-                    "雞塊": "9 份"
-                },
-                "對帳結果": {
-                    "總收入": "820 元",
-                    "收入比例": "49.4%",
-                    "利潤": "840 元"
-                },
-                "炸雞利潤分析": "820 元"
-            }
+        const mockData = {
+            dateRange: "2025-09-16 到 2025-09-30",
+            totalSales: "1,660",
+            totalQuantity: "74",
+            categories: [
+                { name: "雞排", quantity: "45", price: "45", total: "2,025" },
+                { name: "雞翅", quantity: "12", price: "12", total: "144" },
+                { name: "雞腿", quantity: "8", price: "8", total: "64" },
+                { name: "雞塊", quantity: "9", price: "9", total: "81" }
+            ],
+            totalRevenue: "820",
+            revenueRatio: "49.4%",
+            profit: "840"
         };
         
-        showResult('功能展示:\\n\\n' + JSON.stringify(demoData, null, 2));
+        showReportTable(mockData);
     }
     
     // 顯示功能詳情
@@ -324,11 +436,11 @@
             }
         };
         
-        showResult('功能詳情:\\n\\n' + JSON.stringify(features, null, 2));
+        showResultText('功能詳情:\\n\\n' + JSON.stringify(features, null, 2));
     }
     
-    // 顯示結果
-    function showResult(content) {
+    // 顯示文字結果
+    function showResultText(content) {
         document.getElementById('result-section').style.display = 'block';
         document.getElementById('result-content').textContent = content;
     }
