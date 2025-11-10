@@ -2,8 +2,8 @@
  * 系統內部設定
  */
 const GAS_CONFIG = {
-  sheetId: '1i3K-MA764j2JoaVZEbgzH_eD8xWbbbOTsEpZTcJaE24',
-  mainSheetName: '表單回應 1',
+  sheetId: '1wweNNyclcNn1g_uGj3IBA56OaRrJlAMsr2uxeCB2IZs',
+  mainSheetName: '表單回應1',
   settingsSheetName: '設定',
   headerRow: 1,
   dataRange: 'A1:Z1000',
@@ -18,17 +18,17 @@ const GAS_CONFIG = {
     note: '特殊交接事項'
   },
   chickenColumnMapping: {
-    '炸物的訂購_雞排': '雞排',
-    '炸物的訂購_地瓜': '地瓜',
-    '炸物的訂購_棒腿': '棒腿',
-    '炸物的訂購_雞翅': '雞翅',
-    '炸物的訂購_雞腿': '雞腿',
-    '炸物的訂購_雞塊': '雞塊',
-    '炸物的訂購_雞米花': '雞米花',
-    '炸物的訂購_雞柳條': '雞柳條',
-    '炸物的訂購_雞胗': '雞胗',
-    '炸物的訂購_雞心': '雞心',
-    '炸物的訂購_雞脖子': '雞脖子'
+    '炸物的訂購 [雞排]': '雞排',
+    '炸物的訂購 [地瓜]': '地瓜',
+    '炸物的訂購 [棒腿*2]': '棒腿',
+    '炸物的訂購 [雞翅 *3]': '雞翅',
+    '炸物的訂購 [雞腿]': '雞腿',
+    '炸物的訂購 [雞塊]': '雞塊',
+    '炸物的訂購 [雞米花]': '雞米花',
+    '炸物的訂購 [雞柳條]': '雞柳條',
+    '炸物的訂購 [雞胗]': '雞胗',
+    '炸物的訂購 [雞心]': '雞心',
+    '炸物的訂購 [雞脖子]': '雞脖子'
   },
   defaultProductConfig: {
     '雞排': { cost: 80, price: 170 },
@@ -112,3 +112,4 @@ function getClientConfigJson() {
 function formatDateForInput(date) {
   return Utilities.formatDate(date, 'Asia/Taipei', 'yyyy-MM-dd');
 }
+

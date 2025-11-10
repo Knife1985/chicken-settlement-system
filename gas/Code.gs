@@ -127,6 +127,25 @@ function resolveDateRange(start, end) {
 /**
  * 核心計算流程
  */
+
+function normalizeSheetName(name) {
+  return String(name || '')
+    .replace(/[\s\u00A0\u0300-\u036F\u2000-\u200F\u3000\uFEFF]/g, '')
+    .toLowerCase();
+}
+
+function resolveSheetByName(spreadsheet, expectedName) {
+  const normalizedTarget = normalizeSheetName(expectedName);
+  const sheets = spreadsheet.getSheets();
+  for (const sheet of sheets) {
+    if (normalizeSheetName(sheet.getName()) === normalizedTarget) {
+      return sheet;
+    }
+  }
+  const available = sheets.map(sheet => sheet.getName()).join(', ');
+  throw new Error(`找不到工作表：${expectedName}（現有分頁：${available}）`);
+}
+
 function calculateSettlementRange(startDate, endDate) {
   const productConfig = loadProductConfig();
   const dataBundle = fetchSalesRecords(startDate, endDate, productConfig);
@@ -136,10 +155,7 @@ function calculateSettlementRange(startDate, endDate) {
 
 function fetchSalesRecords(startDate, endDate, productConfig) {
   const ss = SpreadsheetApp.openById(GAS_CONFIG.sheetId);
-  const sheet = ss.getSheetByName(GAS_CONFIG.mainSheetName);
-  if (!sheet) {
-    throw new Error(`找不到工作表：${GAS_CONFIG.mainSheetName}`);
-  }
+  const sheet = resolveSheetByName(ss, GAS_CONFIG.mainSheetName);
 
   const data = sheet.getDataRange().getValues();
   if (!data || data.length <= GAS_CONFIG.headerRow) {

@@ -28,7 +28,9 @@
   - 自動排程需改用 GAS Trigger。
 
 ### 既有雲端設定
-- Google Sheet：`1i3K-MA764j2JoaVZEbgzH_eD8xWbbbOTsEpZTcJaE24`（`knifewenforcursor@gmail.com` 持有）
+- Google Sheet：
+  - `1wweNNyclcNn1g_uGj3IBA56OaRrJlAMsr2uxeCB2IZs`（來源帳號擁有，實際資料分頁 `表單回應1` 等；已共享給分析帳號閱讀）
+  - `1i3K-MA764j2JoaVZEbgzH_eD8xWbbbOTsEpZTcJaE24`（原始備援表單，可視需要保留）
 - 服務帳戶：`chicken-settlement-sa@chicken-settlement.iam.gserviceaccount.com`（已被加入該 Sheet 的編輯權限）
 - 憑證檔：本地 `credentials.json`（與 `.gitignore` 一併更新，避免 commit），待 `token.json` 首次授權後自動生成
 
@@ -91,13 +93,18 @@
 - **檔案儲存**：Google Drive。
 - **通知**：GmailApp / MailApp。
 - **框架**：Apps Script 原生（無需外部框架）。
-- **版本控管**：持續使用 GitHub，同步 GAS 程式碼（建議 clasp）。
+- **版本控管**：持續使用 GitHub，同步 GAS 程式碼（使用 `clasp` CLI）。
+- **表單分頁對應**：系統會以「去除空白、變小寫」的方式比對工作表名稱，避免前端設定與實際分頁存在全形/半形或空格差異而讀不到資料。
+- **本機工具**：
+  - Node.js v25.1.0（含 npm 11.6.2，透過 Homebrew 安裝 `brew install node`）
+  - Google `clasp` CLI 3.1.1（`npm install -g @google/clasp`）
+  - 已啟用 Google Apps Script API（<https://script.google.com/home/usersettings>）
 
 ## 開發計畫
 ### 里程碑與預估時程
 1. **M1：需求確認與環境設定（1 週）**
-   - 建立 GAS 專案與 Web App 範本。
-   - 設定 clasp 與 GitHub 同步流程。
+   - 建立 GAS 專案與 Web App 範本（需啟用 Apps Script API、安裝 Node.js/npm 與 `clasp`）。
+   - 設定 clasp 與 GitHub 同步流程（`clasp login`、`clasp create`、`clasp push`）。
    - 匯整品項成本與報表範例。
 2. **M2：核心計算模組移植（2 週）**
    - 將 `chicken_settlement_calculator.py` 轉寫成 Apps Script。
@@ -119,6 +126,7 @@
 - GAS 程式碼（clasp 專案結構）。
 - `appsscript.json` 設定檔。
 - 前端 HTML/CSS/JS。
+- 部署說明檔（含 Node.js/npm 安裝、`clasp` 操作、Apps Script API 啟用、跨帳號表單分享注意事項）。
 - 測試報告（含與 Python 版比對）。
 - 使用手冊與部署說明（含權限設定、Trigger 設定）。
 
@@ -131,7 +139,7 @@
 ## 風險與緩解
 - **Apps Script 執行時間限制**：分批讀取資料、必要時採分頁；報告匯出改排程背景執行。
 - **Excel 產生受限**：若 GAS 轉 Excel 複雜，改用 Google Sheet 報告模板並提供下載格式。
-- **權限設定困難**：提供詳細部署文件，包含 OAuth 範圍、分享設定。
+- **權限設定困難**：提供詳細部署文件，包含 OAuth 範圍、分享設定（跨帳號表單需授權來源帳號共享讀取）。
 - **文字格式差異**：撰寫自動化比對腳本，確保輸出與 Python 版一致。
 
 ## 開放議題
