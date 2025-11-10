@@ -157,12 +157,15 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   const ss = SpreadsheetApp.openById(GAS_CONFIG.sheetId);
   const sheet = resolveSheetByName(ss, GAS_CONFIG.mainSheetName);
 
-  const data = sheet.getDataRange().getValues();
+  const dataRange = sheet.getDataRange();
+  const data = dataRange.getValues();
+  const displayData = dataRange.getDisplayValues();
   if (!data || data.length <= GAS_CONFIG.headerRow) {
-    return { records: [], rawRows: [], headers: data[0] || [] };
+    const headers = displayData && displayData.length ? displayData[0] : [];
+    return { records: [], rawRows: [], headers };
   }
 
-  const headers = data[GAS_CONFIG.headerRow - 1].map(value => String(value || '').trim());
+  const headers = displayData[GAS_CONFIG.headerRow - 1].map(value => String(value || '').trim());
   const headerIndex = {};
   headers.forEach((name, index) => {
     headerIndex[name] = index;
@@ -188,12 +191,14 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
 
   for (let i = GAS_CONFIG.headerRow; i < data.length; i++) {
     const row = data[i];
+    const displayRow = displayData[i];
     if (!row || row.every(value => value === '' || value === null)) {
       continue;
     }
 
     const dateValue = row[dateColumnIndex];
-    const dateObj = parseSheetDate(dateValue);
+    const dateDisplay = displayRow[dateColumnIndex];
+    const dateObj = parseSheetDate(dateValue, dateDisplay);
     if (!dateObj) {
       continue;
     }
@@ -202,8 +207,13 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
       continue;
     }
 
-    const dateKey = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
-    const timestampValue = timestampIndex !== undefined ? parseSheetDateTime(row[timestampIndex]) : null;
+    const dateKey = createDateKey(dateObj, dateDisplay);
+    if (!dateKey) {
+      continue;
+    }
+
+    const timestampDisplay = timestampIndex !== undefined ? displayRow[timestampIndex] : null;
+    const timestampValue = timestampIndex !== undefined ? parseSheetDateTime(row[timestampIndex], timestampDisplay) : null;
     const timestampMillis = timestampValue ? timestampValue.getTime() : null;
 
     const existing = latestRowIndexByDate[dateKey];
@@ -219,12 +229,14 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
 
   for (let i = GAS_CONFIG.headerRow; i < data.length; i++) {
     const row = data[i];
+    const displayRow = displayData[i];
     if (!row || row.every(value => value === '' || value === null)) {
       continue;
     }
 
     const dateValue = row[dateColumnIndex];
-    const dateObj = parseSheetDate(dateValue);
+    const dateDisplay = displayRow[dateColumnIndex];
+    const dateObj = parseSheetDate(dateValue, dateDisplay);
     if (!dateObj) {
       continue;
     }
@@ -233,7 +245,11 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
       continue;
     }
 
-    const dateStr = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
+    const dateStr = createDateKey(dateObj, dateDisplay);
+    if (!dateStr) {
+      continue;
+    }
+
     const latestInfo = latestRowIndexByDate[dateStr];
     if (!latestInfo || latestInfo.index !== i) {
       continue;
@@ -281,9 +297,45 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   return { records, rawRows, headers };
 }
 
-function parseSheetDateTime(value) {
-  if (!value && value !== 0) {
+function createDateKey(dateObj, displayValue) {
+  const baseDate = dateObj || parseDateFromString(displayValue);
+  if (!baseDate) {
     return null;
+  }
+  return Utilities.formatDate(baseDate, 'Asia/Taipei', 'yyyy-MM-dd');
+}
+
+function parseDateFromString(value) {
+  if (!value) {
+    return null;
+  }
+  const trimmed = String(value).trim();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = trimmed
+    .replace(/[年\.\-]/g, '/')
+    .replace(/[月]/g, '/')
+    .replace(/[日]/g, '')
+    .replace(/\s+/g, '/');
+  const match = normalized.match(/(\d{4})\D?(\d{1,2})\D?(\d{1,2})/);
+  if (!match) {
+    return null;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (!year || !month || !day) {
+    return null;
+  }
+  const date = new Date(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function parseSheetDateTime(value, displayValue) {
+  if (!value && value !== 0) {
+    value = displayValue;
   }
   if (value instanceof Date) {
     return new Date(value.getTime());
@@ -293,12 +345,8 @@ function parseSheetDateTime(value) {
     const millis = Math.round(value * 24 * 60 * 60 * 1000);
     return new Date(epoch.getTime() + millis);
   }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-    const parsed = new Date(trimmed);
+  if (value) {
+    const parsed = new Date(String(value).trim());
     if (!isNaN(parsed.getTime())) {
       return parsed;
     }
@@ -306,32 +354,21 @@ function parseSheetDateTime(value) {
   return null;
 }
 
-function parseSheetDate(value) {
-  if (!value && value !== 0) {
-    return null;
-  }
+function parseSheetDate(value, displayValue) {
   if (value instanceof Date) {
     const date = new Date(value.getTime());
     date.setHours(0, 0, 0, 0);
     return date;
   }
   if (typeof value === 'number') {
-    // Google Sheets serial number
     const epoch = new Date(1899, 11, 30);
     const date = new Date(epoch.getTime() + value * 24 * 60 * 60 * 1000);
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-    const date = new Date(trimmed);
-    if (!isNaN(date.getTime())) {
-      date.setHours(0, 0, 0, 0);
-      return date;
-    }
+  const fromString = parseDateFromString(value) || parseDateFromString(displayValue);
+  if (fromString) {
+    return fromString;
   }
   return null;
 }
