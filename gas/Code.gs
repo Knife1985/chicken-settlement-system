@@ -182,6 +182,30 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
 
   const records = [];
   const rawRows = [];
+  const latestRowIndexByDate = {};
+
+  for (let i = GAS_CONFIG.headerRow; i < data.length; i++) {
+    const row = data[i];
+    if (!row || row.every(value => value === '' || value === null)) {
+      continue;
+    }
+
+    const dateValue = row[dateColumnIndex];
+    const dateObj = parseSheetDate(dateValue);
+    if (!dateObj) {
+      continue;
+    }
+
+    if (dateObj < startDate || dateObj > endDate) {
+      continue;
+    }
+
+    const dateKey = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
+    const existingIndex = latestRowIndexByDate[dateKey];
+    if (existingIndex === undefined || i > existingIndex) {
+      latestRowIndexByDate[dateKey] = i;
+    }
+  }
 
   for (let i = GAS_CONFIG.headerRow; i < data.length; i++) {
     const row = data[i];
@@ -200,6 +224,10 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
     }
 
     const dateStr = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
+    if (latestRowIndexByDate[dateStr] !== i) {
+      continue;
+    }
+
     const reporter = reporterIndex !== undefined ? row[reporterIndex] || '' : '';
     const note = noteIndex !== undefined ? row[noteIndex] || '' : '';
 
