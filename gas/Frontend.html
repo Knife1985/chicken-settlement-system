@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>炸雞對帳系統 - Google Apps Script</title>
+    <style>
+        body {
+            font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #fff1eb, #ace0f9);
+            margin: 0;
+            padding: 0;
+            color: #2d3436;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(46, 134, 193, 0.2);
+            padding: 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(6px);
+        }
+        h1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px;
+            margin: 0 0 12px;
+            color: #2d3436;
+        }
+        h2 {
+            font-size: 20px;
+            margin: 0 0 12px;
+            color: #2d3436;
+        }
+        p.description {
+            margin: 0;
+            color: #636e72;
+            line-height: 1.6;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 6px;
+        }
+        input[type="date"] {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #dfe6e9;
+            font-size: 15px;
+            transition: border-color 0.2s ease;
+        }
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #0984e3;
+        }
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.35);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #0984e3, #74b9ff);
+            box-shadow: 0 8px 20px rgba(9, 132, 227, 0.3);
+        }
+        .btn-outline {
+            background: #fff;
+            color: #0984e3;
+            border: 1px solid #74b9ff;
+            box-shadow: none;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        .status-box {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: rgba(9, 132, 227, 0.12);
+            color: #0c2461;
+            font-size: 14px;
+        }
+        .status-box.error {
+            background: rgba(231, 76, 60, 0.12);
+            color: #c0392b;
+        }
+        .result-section {
+            display: none;
+            margin-top: 24px;
+        }
+        .summary-card {
+            background: #fff;
+            border: 1px solid #dfe6e9;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        pre.summary-text {
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: #2d3436;
+            margin: 0;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background: #f1f7ff;
+            color: #2d3436;
+            font-weight: 600;
+        }
+        td.numeric {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        .footer-note {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #95a5a6;
+        }
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 24px;
+            }
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🍗 炸雞對帳系統</h1>
+            <p class="description">直接從 Google Sheets 讀取營運資料，生成每日明細、品項對帳與可複製的文字摘要，一鍵匯出完整報告。</p>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="start-date">對帳起始日</label>
+                    <input type="date" id="start-date">
+                </div>
+                <div class="control-group">
+                    <label for="end-date">對帳結束日</label>
+                    <input type="date" id="end-date">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn-primary" id="load-button" onclick="loadSettlement()">📊 載入炸雞數據</button>
+                <button class="btn-secondary" id="export-button" onclick="exportReport()" disabled>📁 匯出報告</button>
+                <button class="btn-outline" onclick="copyTextSummary()">📋 複製摘要</button>
+            </div>
+
+            <div class="status-box" id="status-box"></div>
+        </div>
+
+        <div class="card result-section" id="result-section">
+            <h2>📝 與老闆對帳摘要</h2>
+            <div class="summary-card">
+                <pre id="result-content" class="summary-text">尚未載入資料</pre>
+            </div>
+
+            <div class="table-wrapper" id="category-wrapper" style="display:none;">
+                <h2>🍗 品項對帳明細</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>品項</th>
+                            <th class="numeric">數量</th>
+                            <th class="numeric">單位成本</th>
+                            <th class="numeric">成本總額</th>
+                            <th class="numeric">單位售價</th>
+                            <th class="numeric">銷售總額</th>
+                        </tr>
+                    </thead>
+                    <tbody id="category-body"></tbody>
+                </table>
+            </div>
+
+            <div class="table-wrapper" id="daily-wrapper" style="display:none;">
+                <h2>📅 每日總覽</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th class="numeric">總數量</th>
+                            <th class="numeric">進價總額</th>
+                            <th class="numeric">銷售總額</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-body"></tbody>
+                </table>
+            </div>
+
+            <p class="footer-note">若需調整品項成本／售價，可至試算表的「設定」工作表更新，系統會自動同步。</p>
+        </div>
+    </div>
+
+    <script>
+        const CLIENT_CONFIG = <?!= clientConfigJson ?>;
+        let latestReport = null;
+        let isLoading = false;
+        let isExporting = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (CLIENT_CONFIG) {
+                document.getElementById('start-date').value = CLIENT_CONFIG.defaultStartDate;
+                document.getElementById('end-date').value = CLIENT_CONFIG.defaultEndDate;
+            }
+        });
+
+        function loadSettlement() {
+            if (isLoading) return;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            toggleStatus('處理中，請稍候...', false);
+            setLoading(true);
+            google.script.run
+                .withSuccessHandler(handleSettlementSuccess)
+                .withFailureHandler(handleError)
+                .generateSettlement({ startDate, endDate });
+        }
+
+        function exportReport() {
+            if (isExporting) return;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            if (!latestReport) {
+                toggleStatus('請先載入一次對帳資料，再匯出報告。', true);
+                return;
+            }
+
+            toggleStatus('報告匯出中...', false);
+            setExporting(true);
+            google.script.run
+                .withSuccessHandler(handleExportSuccess)
+                .withFailureHandler(handleError)
+                .exportSettlementReport({ startDate, endDate });
+        }
+
+        function handleSettlementSuccess(report) {
+            setLoading(false);
+            if (!report || !report.dailyDetails || report.dailyDetails.length === 0) {
+                latestReport = null;
+                document.getElementById('result-section').style.display = 'none';
+                toggleStatus('指定期間內沒有炸雞銷售資料。', true);
+                document.getElementById('export-button').disabled = true;
+                return;
+            }
+
+            latestReport = report;
+            renderSummary(report);
+            toggleStatus('對帳資料載入完成！', false);
+            document.getElementById('export-button').disabled = false;
+        }
+
+        function handleExportSuccess(result) {
+            setExporting(false);
+            if (result && result.ok) {
+                toggleStatus('報告已匯出完成，已開啟新視窗。', false);
+                if (result.fileUrl) {
+                    window.open(result.fileUrl, '_blank');
+                }
+            } else {
+                toggleStatus('匯出報告時發生未知狀況。', true);
+            }
+        }
+
+        function handleError(error) {
+            setLoading(false);
+            setExporting(false);
+            const message = (error && error.message) ? error.message : '操作失敗，請稍後再試';
+            toggleStatus(message, true);
+        }
+
+        function renderSummary(report) {
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-content').textContent = report.textSummary;
+
+            const categoryBody = document.getElementById('category-body');
+            categoryBody.innerHTML = '';
+            if (report.categories && report.categories.length) {
+                report.categories.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.name}</td>
+                        <td class="numeric">${formatNumber(item.quantity)}</td>
+                        <td class="numeric">${formatCurrency(item.costPrice)}</td>
+                        <td class="numeric">${formatCurrency(item.costTotal)}</td>
+                        <td class="numeric">${formatCurrency(item.unitPrice)}</td>
+                        <td class="numeric">${formatCurrency(item.salesTotal)}</td>
+                    `;
+                    categoryBody.appendChild(tr);
+                });
+                document.getElementById('category-wrapper').style.display = 'block';
+            } else {
+                document.getElementById('category-wrapper').style.display = 'none';
+            }
+
+            const dailyBody = document.getElementById('daily-body');
+            dailyBody.innerHTML = '';
+            if (report.dailyDetails && report.dailyDetails.length) {
+                report.dailyDetails.forEach(day => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${day.date}</td>
+                        <td class="numeric">${formatNumber(day.totalQuantity)}</td>
+                        <td class="numeric">${formatCurrency(day.totalCost)}</td>
+                        <td class="numeric">${formatCurrency(day.totalSales)}</td>
+                    `;
+                    dailyBody.appendChild(tr);
+                });
+                document.getElementById('daily-wrapper').style.display = 'block';
+            } else {
+                document.getElementById('daily-wrapper').style.display = 'none';
+            }
+        }
+
+        function copyTextSummary() {
+            const text = document.getElementById('result-content').textContent;
+            if (!text || text === '尚未載入資料') {
+                toggleStatus('請先載入對帳資料再複製。', true);
+                return;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => toggleStatus('摘要已複製到剪貼簿！', false))
+                    .catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            toggleStatus('摘要已複製到剪貼簿！', false);
+        }
+
+        function toggleStatus(message, isError) {
+            const box = document.getElementById('status-box');
+            if (!message) {
+                box.style.display = 'none';
+                box.textContent = '';
+                box.classList.remove('error');
+                return;
+            }
+            box.style.display = 'block';
+            box.textContent = message;
+            box.classList.toggle('error', !!isError);
+        }
+
+        function setLoading(state) {
+            isLoading = state;
+            document.getElementById('load-button').disabled = state;
+        }
+
+        function setExporting(state) {
+            isExporting = state;
+            document.getElementById('export-button').disabled = state;
+        }
+
+        function formatNumber(value) {
+            const number = Number(value || 0);
+            return number.toLocaleString('en-US');
+        }
+
+        function formatCurrency(value) {
+            const number = Number(value || 0);
+            return number.toLocaleString('en-US', { minimumFractionDigits: 0 });
+        }
+    </script>
+</body>
+</html>
