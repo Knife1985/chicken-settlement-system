@@ -27,6 +27,11 @@
   - Python 環境無法直接搬到 GAS，需要以 Apps Script（基於 JavaScript）重寫主要邏輯。
   - 自動排程需改用 GAS Trigger。
 
+### 既有雲端設定
+- Google Sheet：`1i3K-MA764j2JoaVZEbgzH_eD8xWbbbOTsEpZTcJaE24`（`knifewenforcursor@gmail.com` 持有）
+- 服務帳戶：`chicken-settlement-sa@chicken-settlement.iam.gserviceaccount.com`（已被加入該 Sheet 的編輯權限）
+- 憑證檔：本地 `credentials.json`（與 `.gitignore` 一併更新，避免 commit），待 `token.json` 首次授權後自動生成
+
 ## 系統設計概要
 ### 架構圖（文字描述）
 - **前端 UI**：HTML/CSS/JS，部署在 GAS Web App。負責輸入日期、觸發結算、顯示文字摘要、提供複製按鈕與下載報告。
