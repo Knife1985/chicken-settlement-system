@@ -189,6 +189,11 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   const rawRows = [];
   const latestRowIndexByDate = {};
 
+  const startParts = convertDateToParts(startDate);
+  const endParts = convertDateToParts(endDate);
+  const startNumeric = datePartsToNumber(startParts);
+  const endNumeric = datePartsToNumber(endParts);
+
   for (let i = GAS_CONFIG.headerRow; i < data.length; i++) {
     const row = data[i];
     const displayRow = displayData[i];
@@ -203,15 +208,16 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
       continue;
     }
 
-    if (dateObj < startDate || dateObj > endDate) {
+    const dateParts = parseDateParts(dateValue, dateDisplay);
+    if (!dateParts) {
+      continue;
+    }
+    const dateNumeric = datePartsToNumber(dateParts);
+    if (dateNumeric < startNumeric || dateNumeric > endNumeric) {
       continue;
     }
 
-    const dateKey = createDateKey(dateObj, dateDisplay);
-    if (!dateKey) {
-      continue;
-    }
-
+    const dateKey = datePartsToKey(dateParts);
     const timestampDisplay = timestampIndex !== undefined ? displayRow[timestampIndex] : null;
     const timestampValue = timestampIndex !== undefined ? parseSheetDateTime(row[timestampIndex], timestampDisplay) : null;
     const timestampMillis = timestampValue ? timestampValue.getTime() : null;
@@ -241,15 +247,16 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
       continue;
     }
 
-    if (dateObj < startDate || dateObj > endDate) {
+    const dateParts = parseDateParts(dateValue, dateDisplay);
+    if (!dateParts) {
+      continue;
+    }
+    const dateNumeric = datePartsToNumber(dateParts);
+    if (dateNumeric < startNumeric || dateNumeric > endNumeric) {
       continue;
     }
 
-    const dateStr = createDateKey(dateObj, dateDisplay);
-    if (!dateStr) {
-      continue;
-    }
-
+    const dateStr = datePartsToKey(dateParts);
     const latestInfo = latestRowIndexByDate[dateStr];
     if (!latestInfo || latestInfo.index !== i) {
       continue;
@@ -297,12 +304,66 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   return { records, rawRows, headers };
 }
 
-function createDateKey(dateObj, displayValue) {
-  const baseDate = dateObj || parseDateFromString(displayValue);
-  if (!baseDate) {
-    return null;
+function padNumber(value) {
+  return String(value).padStart(2, '0');
+}
+
+function datePartsToKey(parts) {
+  return `${parts.year}-${padNumber(parts.month)}-${padNumber(parts.day)}`;
+}
+
+function datePartsToNumber(parts) {
+  return parts.year * 10000 + parts.month * 100 + parts.day;
+}
+
+function convertDateToParts(date) {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate()
+  };
+}
+
+function parseDateParts(value, displayValue) {
+  const fromDisplay = parseDateFromString(displayValue);
+  if (fromDisplay) {
+    return {
+      year: fromDisplay.getFullYear(),
+      month: fromDisplay.getMonth() + 1,
+      day: fromDisplay.getDate()
+    };
   }
-  return Utilities.formatDate(baseDate, 'Asia/Taipei', 'yyyy-MM-dd');
+
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = value.getMonth() + 1;
+    const day = value.getDate();
+    if (year && month && day) {
+      return { year, month, day };
+    }
+  }
+
+  if (typeof value === 'number') {
+    const epoch = new Date(1899, 11, 30);
+    const millis = Math.round(value * 24 * 60 * 60 * 1000);
+    const date = new Date(epoch.getTime() + millis);
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate()
+    };
+  }
+
+  const fromValue = parseDateFromString(value);
+  if (fromValue) {
+    return {
+      year: fromValue.getFullYear(),
+      month: fromValue.getMonth() + 1,
+      day: fromValue.getDate()
+    };
+  }
+
+  return null;
 }
 
 function parseDateFromString(value) {
