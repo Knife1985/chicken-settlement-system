@@ -169,6 +169,7 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   });
 
   const dateHeader = GAS_CONFIG.columnMapping.date;
+  const timestampHeader = GAS_CONFIG.columnMapping.timestamp;
   const reporterHeader = GAS_CONFIG.columnMapping.reporter;
   const noteHeader = GAS_CONFIG.columnMapping.note;
 
@@ -177,6 +178,7 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
     throw new Error(`資料列缺少「${dateHeader}」欄位`);
   }
 
+  const timestampIndex = timestampHeader ? headerIndex[timestampHeader] : undefined;
   const reporterIndex = reporterHeader ? headerIndex[reporterHeader] : undefined;
   const noteIndex = noteHeader ? headerIndex[noteHeader] : undefined;
 
@@ -201,9 +203,17 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
     }
 
     const dateKey = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
-    const existingIndex = latestRowIndexByDate[dateKey];
-    if (existingIndex === undefined || i > existingIndex) {
-      latestRowIndexByDate[dateKey] = i;
+    const timestampValue = timestampIndex !== undefined ? parseSheetDateTime(row[timestampIndex]) : null;
+    const timestampMillis = timestampValue ? timestampValue.getTime() : null;
+
+    const existing = latestRowIndexByDate[dateKey];
+    if (!existing) {
+      latestRowIndexByDate[dateKey] = { index: i, timestamp: timestampMillis ?? i };
+    } else {
+      const candidateTimestamp = timestampMillis ?? i;
+      if (candidateTimestamp > existing.timestamp || (candidateTimestamp === existing.timestamp && i > existing.index)) {
+        latestRowIndexByDate[dateKey] = { index: i, timestamp: candidateTimestamp };
+      }
     }
   }
 
@@ -224,7 +234,8 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
     }
 
     const dateStr = Utilities.formatDate(dateObj, 'Asia/Taipei', 'yyyy-MM-dd');
-    if (latestRowIndexByDate[dateStr] !== i) {
+    const latestInfo = latestRowIndexByDate[dateStr];
+    if (!latestInfo || latestInfo.index !== i) {
       continue;
     }
 
@@ -268,6 +279,31 @@ function fetchSalesRecords(startDate, endDate, productConfig) {
   }
 
   return { records, rawRows, headers };
+}
+
+function parseSheetDateTime(value) {
+  if (!value && value !== 0) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return new Date(value.getTime());
+  }
+  if (typeof value === 'number') {
+    const epoch = new Date(1899, 11, 30);
+    const millis = Math.round(value * 24 * 60 * 60 * 1000);
+    return new Date(epoch.getTime() + millis);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return null;
 }
 
 function parseSheetDate(value) {
